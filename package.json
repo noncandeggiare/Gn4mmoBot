@@ -1,0 +1,17 @@
+{
+  "name": "gn4mmo-bot",
+  "version": "1.0.0",
+  "description": "API client for school restaurant menu data",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": ["api-client", "menu", "school-restaurant"],
+  "author": "",
+  "license": "ISC"
+}
