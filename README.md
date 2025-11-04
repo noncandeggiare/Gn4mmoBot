@@ -1,46 +1,69 @@
-# School Restaurant Menu API Client
+# GnammoBOT 🍝
 
-This tool provides a client for accessing school restaurant menu data through a REST API.
+A TypeScript bot that fetches school menu data and sends it to Telegram. Supports multiple menus (infanzia/primaria) and adds emoji to dishes.
+
+## Features
+
+- 🔄 Fetches daily menu from school restaurant API
+- 🎯 Filters menus based on day of week (primaria menu only on Mon/Wed)
+- 🎨 Adds relevant emoji to each dish
+- 📱 Sends formatted menu to Telegram
+- ⏰ Runs automatically every weekday at 7 AM
+- 🔒 Handles authentication and cookie refresh
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v20 or higher)
 - npm
+- A Telegram bot token and chat ID
 
 ## Installation
 
-```bash
-npm install
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/noncandeggiare/Gn4mmoBot.git
+   cd Gn4mmoBot
+   ```
 
-## Configuration
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Create a `.env` file in the root directory with your credentials:
+3. Copy example.env to .env and configure:
+   ```bash
+   cp example.env .env
+   ```
 
-```env
-API_USERNAME=your_username
-API_PASSWORD=your_password
-```
+4. Fill in the .env file with your credentials:
+   - API_USERNAME: School menu API username
+   - API_PASSWORD: School menu API password
+   - MENU_IDS: Comma-separated list of menu IDs (e.g., "590,591")
+   - TELEGRAM_BOT_TOKEN: Your Telegram bot token
+   - TELEGRAM_CHAT_ID: Your Telegram chat ID
 
 ## Usage
 
-```typescript
-import { getMenuData } from './src';
-
-const menuData = await getMenuData({
-  enteName: "bassa-romagna",
-  date: "2025-11-04",
-  menuId: "591",
-  serviceId: "3",
-  supplypointId: "31"
-});
-```
-
-## CLI Usage
+### Manual Run
 
 ```bash
-npm start -- --ente bassa-romagna --date 2025-11-04 --menu-id 591 --service-id 3 --supplypoint-id 31
+# Run for today
+npm start
+
+# Run for specific date
+npm start -- --date 2025-11-05
 ```
+
+### GitHub Actions
+
+The bot runs automatically every weekday at 5 AM via GitHub Actions. To set this up:
+
+1. Fork this repository
+2. Add these secrets to your repository:
+   - API_USERNAME
+   - API_PASSWORD
+   - TELEGRAM_BOT_TOKEN
+   - TELEGRAM_CHAT_ID
 
 ## Development
 

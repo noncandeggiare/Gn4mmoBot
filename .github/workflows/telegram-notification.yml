@@ -1,0 +1,63 @@
+name: Daily Telegram Notification
+
+on:
+  schedule:
+    - cron: "0 7 * * 1-5"  # Run at 7 AM on weekdays
+  workflow_dispatch:        # Allow manual trigger
+
+jobs:
+  send_notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run GnammoBOT to update output.md
+        run: node dist/index.js
+        env:
+          API_USERNAME: ${{ secrets.API_USERNAME }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
+          API_COOKIE: ${{ secrets.API_COOKIE }}
+
+      - name: Add emojis to menu
+        run: |
+          node -e "
+          const { EmojiProcessor } = require('./dist/utils/emoji');
+          const processor = new EmojiProcessor();
+          processor.processFile('output.md').catch(console.error);
+          "
+
+      - name: Read output.md file
+        id: read_output
+        run: |
+          content=$(cat output.md)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::set-output name=content::$content"
+
+      - name: Send Telegram messages
+        run: |
+          node -e "
+          const { BotService } = require('./dist/services/bot');
+          const bot = new BotService(process.env.TELEGRAM_BOT_TOKEN);
+          bot.start()
+            .then(() => bot.sendToAll(process.env.MESSAGE_CONTENT))
+            .then(() => bot.stop())
+            .catch(console.error);
+          "
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          MESSAGE_CONTENT: ${{ steps.read_output.outputs.content }}

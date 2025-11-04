@@ -8,10 +8,30 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "bot": "ts-node src/cli/bot.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
-  "keywords": ["api-client", "menu", "school-restaurant"],
+  "keywords": [
+    "api-client",
+    "menu",
+    "school-restaurant"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@types/node-telegram-bot-api": "^0.64.12",
+    "axios": "^1.13.1",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.10",
+    "@types/node": "^24.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
 }
