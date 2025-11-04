@@ -12,10 +12,15 @@ interface Subscribers {
 export class BotService {
   private bot: TelegramBot;
   private subscribers: string[] = [];
+  private isPolling: boolean;
 
-  constructor(token: string) {
-    this.bot = new TelegramBot(token, { polling: true });
-    this.setupHandlers();
+  constructor(token: string, enablePolling: boolean = true) {
+    this.isPolling = enablePolling;
+    this.bot = new TelegramBot(token, { polling: enablePolling });
+    
+    if (enablePolling) {
+      this.setupHandlers();
+    }
   }
 
   private async loadSubscribers(): Promise<void> {
@@ -24,6 +29,9 @@ export class BotService {
         const data = await fs.readFile(SUBSCRIBERS_FILE, 'utf-8');
         const { subscribers } = JSON.parse(data) as Subscribers;
         this.subscribers = subscribers;
+        console.log(`Loaded ${this.subscribers.length} subscribers`);
+      } else {
+        console.log('No subscribers file found');
       }
     } catch (error) {
       console.error('Error loading subscribers:', error);
@@ -75,21 +83,37 @@ export class BotService {
   public async sendToAll(message: string): Promise<void> {
     await this.loadSubscribers();
     
+    if (this.subscribers.length === 0) {
+      console.log('No subscribers to send to');
+      return;
+    }
+
+    console.log(`Sending to ${this.subscribers.length} subscribers...`);
+    
     const failedDeliveries: string[] = [];
+    let successCount = 0;
     
     for (const chatId of this.subscribers) {
       try {
         await this.bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+        successCount++;
+        console.log(`✓ Sent to ${chatId}`);
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
       } catch (error) {
-        console.error(`Failed to send to ${chatId}:`, error);
+        console.error(`✗ Failed to send to ${chatId}:`, error);
         failedDeliveries.push(chatId);
       }
     }
+
+    console.log(`Delivery complete: ${successCount} successful, ${failedDeliveries.length} failed`);
 
     // Remove failed deliveries from subscribers
     if (failedDeliveries.length > 0) {
       this.subscribers = this.subscribers.filter(id => !failedDeliveries.includes(id));
       await this.saveSubscribers();
+      console.log(`Removed ${failedDeliveries.length} inactive subscribers`);
     }
   }
 
@@ -98,7 +122,10 @@ export class BotService {
     console.log('Bot started successfully');
   }
 
-  public stop(): void {
-    this.bot.stopPolling();
+  public async stop(): Promise<void> {
+    if (this.isPolling) {
+      await this.bot.stopPolling();
+    }
+    console.log('Bot stopped');
   }
 }

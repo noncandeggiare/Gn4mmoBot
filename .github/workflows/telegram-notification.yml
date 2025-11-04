@@ -53,11 +53,25 @@ jobs:
         run: |
           node -e "
           const { BotService } = require('./dist/services/bot');
-          const bot = new BotService(process.env.TELEGRAM_BOT_TOKEN);
-          bot.start()
-            .then(() => bot.sendToAll(process.env.MESSAGE_CONTENT))
-            .then(() => bot.stop())
-            .catch(console.error);
+          
+          (async () => {
+            const bot = new BotService(process.env.TELEGRAM_BOT_TOKEN, false);
+            
+            try {
+              await bot.start();
+              await bot.sendToAll(process.env.MESSAGE_CONTENT);
+              await bot.stop();
+              
+              // Attendi per essere sicuro che tutto sia completato
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+              console.log('All done!');
+              process.exit(0);
+            } catch (error) {
+              console.error('Error:', error);
+              process.exit(1);
+            }
+          })();
           "
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
