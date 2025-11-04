@@ -30,6 +30,7 @@ jobs:
           API_USERNAME: ${{ secrets.API_USERNAME }}
           API_PASSWORD: ${{ secrets.API_PASSWORD }}
           API_COOKIE: ${{ secrets.API_COOKIE }}
+          MENU_IDS: ${{ secrets.MENU_IDS }}
 
       - name: Add emojis to menu
         run: |
