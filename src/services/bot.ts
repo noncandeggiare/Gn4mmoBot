@@ -56,7 +56,7 @@ export class BotService {
       await this.addSubscriber(chatId);
       await this.bot.sendMessage(
         chatId,
-        'Benvenuto! 👋 Riceverai il menu della mensa ogni giorno alle 5 del mattino. Per smettere di ricevere il menu, usa il comando /stop.'
+        'Benvenutə ! 👋 Riceverai il menu della mensa ogni giorno alle 7 del mattino. Per smettere di ricevere il menu, usa il comando /stop.'
       );
     });
 
