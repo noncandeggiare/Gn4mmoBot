@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileExists } from '../utils';
 
-const SUBSCRIBERS_FILE = path.join(__dirname, 'bot/data/subscribers.json');
+const SUBSCRIBERS_FILE = path.join(process.cwd(), 'src/services/bot/data/subscribers.json');
 
 interface Subscribers {
   subscribers: string[];
