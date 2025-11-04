@@ -42,11 +42,11 @@ export class EmojiProcessor {
     for (const line of lines) {
       if (line.startsWith('# Menu del')) {
         inMenuSection = true;
-        // Convert "# Menu del MERCOLEDI' 05 NOVEMBRE 2025" to "**05 novembre**"
+        // Convert "# Menu del MERCOLEDI' 05 NOVEMBRE 2025" to "*05 novembre*" (grassetto)
         const dateMatch = line.match(/(\d{2}).+?(\w+)/);
         if (dateMatch) {
           const [_, day, month] = dateMatch;
-          processedLines.push(`**${day} ${month.toLowerCase()}**`);
+          processedLines.push(`*${day} ${month.toLowerCase()}*`);
         } else {
           processedLines.push(line);
         }
@@ -55,9 +55,9 @@ export class EmojiProcessor {
         if (lastLineWasContent) {
           processedLines.push('');
         }
-        // Extract just "infanzia" or "primaria" from the header
+        // Extract just "infanzia" or "primaria" and format in corsivo (senza ##)
         const type = line.toLowerCase().includes('infanzia') ? 'infanzia' : 'primaria';
-        processedLines.push(`## ${type}`);
+        processedLines.push(`_${type}_`);
         lastLineWasContent = false;
       } else if (line.startsWith('### ')) {
         // Skip course headers
