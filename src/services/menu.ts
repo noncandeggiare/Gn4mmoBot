@@ -33,7 +33,10 @@ export class MenuService {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           maxRedirects: 0,
-          validateStatus: status => status >= 200 && status < 400
+          validateStatus: status => status >= 200 && status < 400,
+          httpsAgent: {
+            rejectUnauthorized: false
+          } as any
         }
       );
 
@@ -81,7 +84,10 @@ export class MenuService {
           'sec-fetch-dest': 'empty',
           'sec-fetch-mode': 'cors',
           'sec-fetch-site': 'same-origin'
-        }
+        },
+        httpsAgent: {
+          rejectUnauthorized: false
+        } as any
       });
 
       if (!response.data.succeeded) {
