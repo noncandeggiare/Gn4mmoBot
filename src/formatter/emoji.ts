@@ -66,7 +66,7 @@ export class EmojiProcessor {
         // Process menu item
         const dish = line.replace(/^-\s*/, '').trim().toLowerCase();
         const emoji = this.findEmoji(dish);
-        processedLines.push(`- ${emoji} ${dish}`);
+        processedLines.push(`${emoji} ${dish}`);
         lastLineWasContent = true;
       } else if (line.trim() !== '') {
         // Keep non-empty lines that aren't course headers

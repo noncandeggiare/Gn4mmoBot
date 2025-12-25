@@ -46,7 +46,7 @@ export class EmojiProcessor {
         const dateMatch = line.match(/(\d{2}).+?(\w+)/);
         if (dateMatch) {
           const [_, day, month] = dateMatch;
-          processedLines.push(`**${day} ${month.toLowerCase()}**`);
+          processedLines.push(`*${day} ${month.toLowerCase()}*`);
         } else {
           processedLines.push(line);
         }
@@ -57,7 +57,7 @@ export class EmojiProcessor {
         }
         // Extract just "infanzia" or "primaria" from the header
         const type = line.toLowerCase().includes('infanzia') ? 'infanzia' : 'primaria';
-        processedLines.push(`## ${type}`);
+        processedLines.push(`_${type}_`);
         lastLineWasContent = false;
       } else if (line.startsWith('### ')) {
         // Skip course headers
@@ -66,7 +66,7 @@ export class EmojiProcessor {
         // Process menu item
         const dish = line.replace(/^-\s*/, '').trim().toLowerCase();
         const emoji = this.findEmoji(dish);
-        processedLines.push(`- ${emoji} ${dish}`);
+        processedLines.push(`${emoji} ${dish}`);
         lastLineWasContent = true;
       } else if (line.trim() !== '') {
         // Keep non-empty lines that aren't course headers
