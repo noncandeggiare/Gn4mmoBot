@@ -66,7 +66,18 @@ export async function run(): Promise<void> {
     // Filter out any responses without dishes
     const validResults = results.filter(result => result.data.dishes.length > 0);
 
-    if (validResults.length > 0) {
+    // Check if the menu is essentially empty (only generic items like "FRUTTA")
+    const hasSubstantialContent = validResults.some(result => {
+      const dishes = result.data.dishes;
+      // Consider it substantial if it has more than just "FRUTTA" or very few items
+      const nonGenericDishes = dishes.filter(dish => 
+        !dish.name.toUpperCase().includes('FRUTTA') && 
+        dish.name.trim().length > 0
+      );
+      return nonGenericDishes.length > 0 || dishes.length > 2;
+    });
+
+    if (validResults.length > 0 && hasSubstantialContent) {
       // Get the formatted date from the first result
       const { day } = validResults[0].data;
       const formattedDate = `${day.weekDay} ${day.dd} ${day.monthName} ${day.year}`;
@@ -88,7 +99,7 @@ export async function run(): Promise<void> {
       await fs.writeFile(outputFile, content, 'utf-8');
       console.log(`Menu saved to ${outputFile}`);
     } else {
-      // No menus found - school is closed
+      // No substantial menus found - school is closed or menu contains only generic items
       const formattedDate = `${new Date(date).toLocaleDateString('it-IT', { 
         weekday: 'long', 
         day: '2-digit', 
