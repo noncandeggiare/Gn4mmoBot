@@ -20,12 +20,12 @@ export class EmojiProcessor {
     for (const word of words) {
       // Special handling for "frutta" - show random fruit emoji
       if (word === 'frutta') {
-        const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓'];
+        const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓','🥝', '🥭', '🍏', '🍉'];
         return fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)];
       }
       // Special handling for "verdura" - show random vegetable emoji
       if (word === 'verdura') {
-        const vegetableEmojis = ['🥦', '🥬', '🍅', '🥕', '🌽', '🫑', '🥔'];
+        const vegetableEmojis = ['🥦', '🥬', '🍅', '🥕', '🥒', '🫜', '🍆','🫛'];
         return vegetableEmojis[Math.floor(Math.random() * vegetableEmojis.length)];
       }
       if (this.emojiMap[word]) {
