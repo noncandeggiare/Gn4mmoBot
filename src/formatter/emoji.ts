@@ -43,6 +43,34 @@ export class EmojiProcessor {
     }
 
     const content = await fs.readFile(filePath, 'utf-8');
+    
+    // Check if school is closed
+    if (content.includes('## Scuola chiusa')) {
+      // Replace the date line and add school closed message
+      const lines = content.split('\n');
+      const processedLines: string[] = [];
+      
+      for (const line of lines) {
+        if (line.startsWith('# Menu del')) {
+          // Convert "# Menu del LUNEDI' 05 GENNAIO 2026" to "*05 gennaio*" (grassetto)
+          const dateMatch = line.match(/(\d{2}).+?(\w+)/);
+          if (dateMatch) {
+            const [_, day, month] = dateMatch;
+            processedLines.push(`*${day} ${month.toLowerCase()}*`);
+          } else {
+            processedLines.push(line);
+          }
+        } else if (line.includes('Scuola chiusa')) {
+          processedLines.push('🏫 scuola chiusa');
+        }
+        // Skip other lines when school is closed
+      }
+      
+      await fs.writeFile(filePath, processedLines.join('\n'), 'utf-8');
+      return;
+    }
+
+    // Normal processing for regular menus
     const lines = content.split('\n');
     const processedLines: string[] = [];
     

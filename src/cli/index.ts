@@ -88,7 +88,19 @@ export async function run(): Promise<void> {
       await fs.writeFile(outputFile, content, 'utf-8');
       console.log(`Menu saved to ${outputFile}`);
     } else {
-      console.log('No menus with dishes found for the specified date');
+      // No menus found - school is closed
+      const formattedDate = `${new Date(date).toLocaleDateString('it-IT', { 
+        weekday: 'long', 
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric' 
+      })}`;
+      
+      const content = `# Menu del ${formattedDate}\n\n## Scuola chiusa\n\nNessun menu disponibile per questa data.`;
+      
+      // Write to file
+      await fs.writeFile(outputFile, content, 'utf-8');
+      console.log(`School closed message saved to ${outputFile}`);
     }
   } catch (error) {
     const err = ensureError(error);

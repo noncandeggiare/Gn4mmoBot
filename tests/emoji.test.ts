@@ -73,7 +73,7 @@ describe('EmojiProcessor', () => {
     });
 
     it('should use random fruit emoji for "frutta"', async () => {
-      (fs.readFile as jest.Mock).mockReset();
+      jest.clearAllMocks();
       (fs.readFile as jest.Mock).mockImplementation((path: string) => {
         if (path.includes('emoji_map.json')) {
           return Promise.resolve('{}'); // Empty map to test special logic
@@ -94,7 +94,7 @@ describe('EmojiProcessor', () => {
     });
 
     it('should use random vegetable emoji for "verdura"', async () => {
-      (fs.readFile as jest.Mock).mockReset();
+      jest.clearAllMocks();
       (fs.readFile as jest.Mock).mockImplementation((path: string) => {
         if (path.includes('emoji_map.json')) {
           return Promise.resolve('{}'); // Empty map to test special logic
@@ -112,6 +112,26 @@ describe('EmojiProcessor', () => {
       const hasVegetableEmoji = vegetableEmojis.some(emoji => content.includes(emoji + ' verdura'));
       expect(hasVegetableEmoji).toBe(true);
       expect(content).not.toContain('🍴 verdura');
+    });
+
+    it('should handle school closed message', async () => {
+      jest.clearAllMocks();
+      (fs.readFile as jest.Mock).mockImplementation((path: string) => {
+        if (path.includes('emoji_map.json')) {
+          return Promise.resolve('{}');
+        }
+        return Promise.resolve('# Menu del LUNEDI\' 05 GENNAIO 2026\n\n## Scuola chiusa\n\nNessun menu disponibile per questa data.');
+      });
+
+      await processor.processFile('test-menu.md');
+      
+      const writeCall = (fs.writeFile as jest.Mock).mock.calls[0];
+      const content = writeCall[1];
+      
+      expect(content).toContain('*05 gennaio*');
+      expect(content).toContain('🏫 scuola chiusa');
+      expect(content).not.toContain('## Scuola chiusa');
+      expect(content).not.toContain('Nessun menu disponibile');
     });
   });
 });
