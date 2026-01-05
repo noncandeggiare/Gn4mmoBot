@@ -18,6 +18,11 @@ export class EmojiProcessor {
   private findEmoji(text: string): string {
     const words = text.toLowerCase().split(/\s+/);
     for (const word of words) {
+      // Special handling for "frutta" - show random fruit emoji
+      if (word === 'frutta') {
+        const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓'];
+        return fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)];
+      }
       if (this.emojiMap[word]) {
         return this.emojiMap[word];
       }
