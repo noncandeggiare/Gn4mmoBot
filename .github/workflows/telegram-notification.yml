@@ -32,6 +32,12 @@ jobs:
           API_COOKIE: ${{ secrets.API_COOKIE }}
           MENU_IDS: ${{ secrets.MENU_IDS }}
 
+      - name: Debug output.md content
+        run: |
+          echo "=== CONTENT OF output.md ==="
+          cat output.md
+          echo "=== END CONTENT ==="
+
       - name: Add emojis to menu
         run: |
           node -e "
