@@ -23,6 +23,11 @@ export class EmojiProcessor {
         const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓'];
         return fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)];
       }
+      // Special handling for "verdura" - show random vegetable emoji
+      if (word === 'verdura') {
+        const vegetableEmojis = ['🥦', '🥬', '🍅', '🥕', '🌽', '🫑', '🥔'];
+        return vegetableEmojis[Math.floor(Math.random() * vegetableEmojis.length)];
+      }
       if (this.emojiMap[word]) {
         return this.emojiMap[word];
       }
