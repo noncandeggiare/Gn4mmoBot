@@ -5,10 +5,10 @@ A TypeScript bot that fetches school menu data and sends it to Telegram. Support
 ## Features
 
 - 🔄 Fetches daily menu from school restaurant API
-- 🎯 Filters menus based on day of week (primaria menu only on Mon/Wed)
+- 🎯 Filters menus based on day of week (primaria menu only on Mon/Wed *-> edit this to need*)
 - 🎨 Adds relevant emoji to each dish
 - 📱 Sends formatted menu to Telegram
-- ⏰ Runs automatically every weekday at 7 AM
+- ⏰ Runs automatically every weekday at 7 AM (it's actually 5 AM GMT)
 - 🔒 Handles authentication and cookie refresh
 
 ## Prerequisites
@@ -56,7 +56,7 @@ npm start -- --date 2025-11-05
 
 ### GitHub Actions
 
-The bot runs automatically every weekday at 5 AM via GitHub Actions. To set this up:
+The bot runs automatically every weekday at 5 AM (GMT) via GitHub Actions. To set this up:
 
 1. Fork this repository
 2. Add these secrets to your repository:
