@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import https from 'https';
 import fs from 'fs/promises';
 import path from 'path';
 import config from '../config';
@@ -34,9 +35,9 @@ export class MenuService {
           },
           maxRedirects: 0,
           validateStatus: status => status >= 200 && status < 400,
-          httpsAgent: {
+          httpsAgent: new https.Agent({
             rejectUnauthorized: false
-          } as any
+          })
         }
       );
 
@@ -85,9 +86,9 @@ export class MenuService {
           'sec-fetch-mode': 'cors',
           'sec-fetch-site': 'same-origin'
         },
-        httpsAgent: {
+        httpsAgent: new https.Agent({
           rejectUnauthorized: false
-        } as any
+        })
       });
 
       if (!response.data.succeeded) {
