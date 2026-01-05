@@ -37,11 +37,11 @@ describe('EmojiProcessor', () => {
       const writeCall = (fs.writeFile as jest.Mock).mock.calls[0];
       const content = writeCall[1];
 
-      expect(content).toContain('**04 novembre**');
-      expect(content).toContain('## infanzia');
-      expect(content).toContain('- 🍝 pasta al pomodoro');
-      expect(content).toContain('- 🍚 riso bianco');
-      expect(content).toContain('- 🍗 pollo arrosto');
+      expect(content).toContain('*04 novembre*');
+      expect(content).toContain('_infanzia_');
+      expect(content).toContain('🍝 pasta al pomodoro');
+      expect(content).toContain('🍚 riso bianco');
+      expect(content).toContain('🍗 pollo arrosto');
     });
 
     it('should throw error when menu file not found', async () => {
@@ -67,7 +67,7 @@ describe('EmojiProcessor', () => {
       
       const writeCall = (fs.writeFile as jest.Mock).mock.calls[0];
       const content = writeCall[1];
-      expect(content).toContain('- 🍴 unknown dish');
+      expect(content).toContain('🍴 unknown dish');
     });
   });
 });

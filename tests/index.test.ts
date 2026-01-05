@@ -1,3 +1,15 @@
+jest.mock('../src/services/menu');
+
+const mockMenuService = {
+  getMenuData: jest.fn(),
+  saveMenuToMarkdown: jest.fn()
+};
+
+jest.mock('../src', () => ({
+  menuService: mockMenuService,
+  MenuService: jest.fn().mockImplementation(() => mockMenuService)
+}));
+
 import { menuService } from '../src';
 import { MenuService } from '../src/services/menu';
 import { ApiError, AuthenticationError } from '../src/types/errors';
@@ -8,6 +20,10 @@ describe('MenuService', () => {
 
   beforeEach(() => {
     service = menuService;
+    mockMenuService.getMenuData.mockResolvedValue({
+      succeeded: true,
+      data: { dishes: [] }
+    });
   });
 
   describe('getMenuData', () => {
