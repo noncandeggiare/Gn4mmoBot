@@ -8,7 +8,7 @@ export class EmojiProcessor {
   constructor() {}
 
   async loadEmojiMap(): Promise<void> {
-    const emojiMapPath = path.join(__dirname, 'config/emoji_map.json');
+    const emojiMapPath = path.join(process.cwd(), 'src', 'formatter', 'config', 'emoji_map.json');
     if (await fileExists(emojiMapPath)) {
       const content = await fs.readFile(emojiMapPath, 'utf-8');
       this.emojiMap = JSON.parse(content);
