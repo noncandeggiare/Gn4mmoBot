@@ -35,7 +35,7 @@ jobs:
       - name: Add emojis to menu
         run: |
           node -e "
-          const { EmojiProcessor } = require('./dist/utils/emoji');
+          const { EmojiProcessor } = require('./dist/formatter/emoji');
           const processor = new EmojiProcessor();
           processor.processFile('output.md').catch(console.error);
           "
