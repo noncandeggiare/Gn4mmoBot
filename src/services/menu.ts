@@ -20,8 +20,13 @@ export class MenuService {
     this.cookie = config.api.cookie;
   }
 
-  private async refreshCookie(): Promise<string> {
+  private async refreshCookie(retryCount = 0): Promise<string> {
+    const maxRetries = 3;
+    const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+
     try {
+      console.log(`Attempting to refresh cookie (attempt ${retryCount + 1}/${maxRetries + 1})`);
+
       const loginResponse = await axios.post<LoginResponse>(
         'https://ristorazionescolastica.it/Account/Login',
         {
@@ -35,8 +40,11 @@ export class MenuService {
           },
           maxRedirects: 0,
           validateStatus: status => status >= 200 && status < 400,
+          timeout: 30000, // 30 second timeout
           httpsAgent: new https.Agent({
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            keepAlive: true,
+            timeout: 30000
           })
         }
       );
@@ -63,17 +71,40 @@ export class MenuService {
       await fs.writeFile(envPath, updatedContent, 'utf-8');
 
       this.cookie = cookie;
+      console.log(`Cookie refreshed successfully`);
       return cookie;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`Cookie refresh attempt ${retryCount + 1} failed:`, errorMessage);
+
+      // Check if we should retry
+      if (retryCount < maxRetries) {
+        console.log(`Retrying in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return this.refreshCookie(retryCount + 1);
+      }
+
       if (error instanceof AuthenticationError) {
         throw error;
       }
-      throw new AuthenticationError(`Failed to refresh cookie: ${String(error)}`);
+
+      // Check for specific TLS/network errors
+      const err = error as any;
+      if (err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || errorMessage.includes('TLS') || errorMessage.includes('socket')) {
+        throw new AuthenticationError(`Network/TLS error after ${maxRetries + 1} attempts: ${errorMessage}`);
+      }
+
+      throw new AuthenticationError(`Failed to refresh cookie after ${maxRetries + 1} attempts: ${errorMessage}`);
     }
   }
 
-  private async makeRequest(params: MenuRequest, cookieValue: string): Promise<MenuResponse> {
+  private async makeRequest(params: MenuRequest, cookieValue: string, retryCount = 0): Promise<MenuResponse> {
+    const maxRetries = 2;
+    const retryDelay = Math.pow(2, retryCount) * 2000; // Exponential backoff starting at 2s
+
     try {
+      console.log(`Making API request (attempt ${retryCount + 1}/${maxRetries + 1})`);
+
       const response = await axios.post<MenuResponse>(config.api.url, params, {
         headers: {
           'Accept': 'application/json, text/plain, */*',
@@ -86,8 +117,11 @@ export class MenuService {
           'sec-fetch-mode': 'cors',
           'sec-fetch-site': 'same-origin'
         },
+        timeout: 30000, // 30 second timeout
         httpsAgent: new https.Agent({
-          rejectUnauthorized: false
+          rejectUnauthorized: false,
+          keepAlive: true,
+          timeout: 30000
         })
       });
 
@@ -95,13 +129,25 @@ export class MenuService {
         throw new ApiError('API request was not successful');
       }
 
+      console.log(`API request successful`);
       return response.data;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`API request attempt ${retryCount + 1} failed:`, errorMessage);
+
+      // Check if we should retry for network/TLS errors
+      const err = error as any;
+      if (retryCount < maxRetries && (err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || err.code === 'ETIMEDOUT' || errorMessage.includes('TLS') || errorMessage.includes('socket') || errorMessage.includes('timeout'))) {
+        console.log(`Retrying API request in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return this.makeRequest(params, cookieValue, retryCount + 1);
+      }
+
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) {
           throw new AuthenticationError('Cookie expired');
         }
-        throw new ApiError(error.message, error.response?.status);
+        throw new ApiError(errorMessage, error.response?.status);
       }
       throw error;
     }
