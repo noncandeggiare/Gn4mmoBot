@@ -94,7 +94,7 @@ export class EmojiProcessor {
           processedLines.push('');
         }
         // Extract just "infanzia" or "primaria" and format in corsivo (senza ##)
-        const type = line.toLowerCase().includes('infanzia') ? 'infanzia' : 'primaria';
+        const type = line.toLowerCase().includes('primaria') ? 'primaria' : 'infanzia';
         processedLines.push(`_${type}_`);
         lastLineWasContent = false;
       } else if (line.startsWith('### ')) {
