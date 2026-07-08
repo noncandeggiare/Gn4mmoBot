@@ -54,10 +54,12 @@ jobs:
           fi
 
           content=$(cat output.md)
-          content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
-          printf 'content=%s\n' "$content" >> "$GITHUB_OUTPUT"
+          delimiter="EOF_CONTENT_$(date +%s)"
+          {
+            echo "content<<$delimiter"
+            printf '%s\n' "$content"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram messages
         run: |
