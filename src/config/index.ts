@@ -3,6 +3,12 @@ import { ConfigurationError } from '../types/errors';
 
 dotenv.config();
 
+interface MenuDateOverride {
+  from: string;
+  to: string;
+  ids: string[];
+}
+
 interface Config {
   api: {
     url: string;
@@ -20,6 +26,7 @@ interface Config {
         daysOfWeek: number[];
       };
     };
+    dateOverrides: MenuDateOverride[];
   };
 }
 
@@ -52,6 +59,13 @@ const config: Config = {
         daysOfWeek: [1, 3], // Monday and Wednesday
       },
     },
+    dateOverrides: [
+      {
+        from: '2026-07-01',
+        to: '2026-07-31',
+        ids: ['151'],
+      },
+    ],
   },
 };
 

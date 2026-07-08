@@ -37,17 +37,27 @@ jobs:
           node -e "
           const { EmojiProcessor } = require('./dist/formatter/emoji');
           const processor = new EmojiProcessor();
-          processor.processFile('output.md').catch(console.error);
+          processor.processFile('output.md')
+            .then(() => process.exit(0))
+            .catch(error => {
+              console.error(error);
+              process.exit(1);
+            });
           "
 
       - name: Read output.md file
         id: read_output
         run: |
+          if [ ! -f output.md ]; then
+            echo "output.md was not generated"
+            exit 1
+          fi
+
           content=$(cat output.md)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          echo "::set-output name=content::$content"
+          printf 'content=%s\n' "$content" >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram messages
         run: |
@@ -62,7 +72,6 @@ jobs:
               await bot.sendToAll(process.env.MESSAGE_CONTENT);
               await bot.stop();
               
-              // Attendi per essere sicuro che tutto sia completato
               await new Promise(resolve => setTimeout(resolve, 1000));
               
               console.log('All done!');

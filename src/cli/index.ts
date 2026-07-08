@@ -2,7 +2,7 @@ import { program } from 'commander';
 import config from '../config';
 import { MenuService } from '../services/menu';
 import { MenuRequest } from '../types/menu';
-import { fileExists, formatDate, shouldIncludeMenu, ensureError } from '../utils';
+import { fileExists, formatDate, ensureError, resolveMenuIdsForDate } from '../utils';
 import fs from 'fs/promises';
 
 interface CliOptions {
@@ -30,14 +30,12 @@ export async function run(): Promise<void> {
   const date = options.date || formatDate(new Date());
   const outputFile = options.output || config.output.file;
   
-  // Get menu IDs from options or environment
-  const menuIds = (options.menuIds || '').split(',').filter(Boolean);
-
-  // Filter menus based on day of week
-  const today = new Date(date);
-  const dayOfWeek = today.getDay();
-  const filteredMenuIds = menuIds.filter(id => 
-    shouldIncludeMenu(id, dayOfWeek, config.menu.filterRules)
+  const requestedMenuIds = (options.menuIds || config.menu.ids.join(',')).split(',').filter(Boolean);
+  const filteredMenuIds = resolveMenuIdsForDate(
+    date,
+    requestedMenuIds,
+    config.menu.dateOverrides,
+    config.menu.filterRules
   );
 
   const menuService = new MenuService();

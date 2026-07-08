@@ -13,7 +13,7 @@ jest.mock('../src', () => ({
 import { menuService } from '../src';
 import { MenuService } from '../src/services/menu';
 import { ApiError, AuthenticationError } from '../src/types/errors';
-import { shouldIncludeMenu } from '../src/utils';
+import { shouldIncludeMenu, resolveMenuIdsForDate } from '../src/utils';
 
 describe('MenuService', () => {
   let service: MenuService;
@@ -56,6 +56,22 @@ describe('Menu filtering', () => {
   const filterRules = {
     '591': { daysOfWeek: [1, 3] } // Monday and Wednesday
   };
+
+  it('should use temporary override menu IDs for a date range', () => {
+    const result = resolveMenuIdsForDate('2026-07-15', ['590', '591'], [
+      { ids: ['151'], from: '2026-07-01', to: '2026-07-31' }
+    ], {});
+
+    expect(result).toEqual(['151']);
+  });
+
+  it('should fall back to default menu IDs outside the override range', () => {
+    const result = resolveMenuIdsForDate('2026-08-01', ['590', '591'], [
+      { ids: ['151'], from: '2026-07-01', to: '2026-07-31' }
+    ], {});
+
+    expect(result).toEqual(['590', '591']);
+  });
 
   it('should include menu 591 on Monday', () => {
     const result = shouldIncludeMenu('591', 1, filterRules);
