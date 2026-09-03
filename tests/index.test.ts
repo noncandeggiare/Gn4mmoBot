@@ -12,7 +12,6 @@ jest.mock('../src', () => ({
 
 import { menuService } from '../src';
 import { MenuService } from '../src/services/menu';
-import { ApiError, AuthenticationError } from '../src/types/errors';
 import { shouldIncludeMenu, resolveMenuIdsForDate } from '../src/utils';
 
 describe('MenuService', () => {

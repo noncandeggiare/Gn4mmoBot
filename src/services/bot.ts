@@ -1,4 +1,4 @@
-import TelegramBot from 'node-telegram-bot-api';
+import { Bot } from 'node-telegram-bot-api/node';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileExists } from '../utils';
@@ -10,13 +10,13 @@ interface Subscribers {
 }
 
 export class BotService {
-  private bot: TelegramBot;
+  private bot: Bot;
   private subscribers: string[] = [];
   private isPolling: boolean;
 
   constructor(token: string, enablePolling: boolean = true) {
     this.isPolling = enablePolling;
-    this.bot = new TelegramBot(token, { polling: enablePolling });
+    this.bot = new Bot(token);
     
     if (enablePolling) {
       this.setupHandlers();
@@ -59,24 +59,22 @@ export class BotService {
 
   private setupHandlers(): void {
     // Handle /start command
-    this.bot.onText(/\/start/, async (msg) => {
-      const chatId = msg.chat.id.toString();
+    this.bot.command('start', async (ctx) => {
+      const chatId = ctx.chat?.id.toString();
+      if (!chatId) return;
+
       await this.addSubscriber(chatId);
-      await this.bot.sendMessage(
-        chatId,
-        'Benvenutə ! 👋 Riceverai il menu della mensa ogni giorno alle 7 del mattino. Per smettere di ricevere il menu, usa il comando /stop.'
-      );
+      await ctx.reply('Benvenutə ! 👋 Riceverai il menu della mensa ogni giorno alle 7 del mattino. Per smettere di ricevere il menu, usa il comando /stop.');
     });
 
     // Handle /stop command
-    this.bot.onText(/\/stop/, async (msg) => {
-      const chatId = msg.chat.id.toString();
+    this.bot.command('stop', async (ctx) => {
+      const chatId = ctx.chat?.id.toString();
+      if (!chatId) return;
+
       this.subscribers = this.subscribers.filter(id => id !== chatId);
       await this.saveSubscribers();
-      await this.bot.sendMessage(
-        chatId,
-        'Non riceverai più il menu. Se cambi idea, usa /start per ricominciare!'
-      );
+      await ctx.reply('Non riceverai più il menu. Se cambi idea, usa /start per ricominciare!');
     });
   }
 
@@ -95,7 +93,7 @@ export class BotService {
     
     for (const chatId of this.subscribers) {
       try {
-        await this.bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+        await this.bot.api.sendMessage({ chat_id: chatId, text: message, parse_mode: 'Markdown' });
         successCount++;
         console.log(`✓ Sent to ${chatId}`);
         
@@ -119,12 +117,15 @@ export class BotService {
 
   public async start(): Promise<void> {
     await this.loadSubscribers();
+    if (this.isPolling) {
+      void this.bot.startPolling().catch((error: unknown) => console.error('Polling error:', error));
+    }
     console.log('Bot started successfully');
   }
 
   public async stop(): Promise<void> {
     if (this.isPolling) {
-      await this.bot.stopPolling();
+      this.bot.stop();
     }
     console.log('Bot stopped');
   }

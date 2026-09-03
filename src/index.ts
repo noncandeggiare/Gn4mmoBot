@@ -3,7 +3,7 @@ import { MenuService } from './services/menu';
 import { run } from './cli';
 import { MenuRequest, MenuResponse } from './types/menu';
 
-export { MenuRequest, MenuResponse };
+export type { MenuRequest, MenuResponse };
 
 // Export the service for library usage
 export const menuService = new MenuService();

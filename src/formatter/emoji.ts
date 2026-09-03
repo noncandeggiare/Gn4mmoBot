@@ -5,8 +5,6 @@ import { fileExists } from '../utils';
 export class EmojiProcessor {
   private emojiMap: Record<string, string> = {};
 
-  constructor() {}
-
   async loadEmojiMap(): Promise<void> {
     const emojiMapPath = path.join(process.cwd(), 'src', 'formatter', 'config', 'emoji_map.json');
     if (await fileExists(emojiMapPath)) {

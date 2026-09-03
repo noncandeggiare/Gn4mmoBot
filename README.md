@@ -8,7 +8,7 @@ A TypeScript bot that fetches school menu data and sends it to Telegram. Support
 - 🎯 Filters menus based on day of week (primaria menu only on Mon/Wed *-> edit this to need*)
 - 🎨 Adds relevant emoji to each dish
 - 📱 Sends formatted menu to Telegram
-- ⏰ Runs automatically every weekday at 7 AM (it's actually 5 AM GMT)
+- ⏰ Runs automatically every weekday at 7 AM UTC
 - 🔒 Handles authentication and cookie refresh
 
 ## Prerequisites
@@ -30,9 +30,9 @@ A TypeScript bot that fetches school menu data and sends it to Telegram. Support
    npm install
    ```
 
-3. Copy example.env to .env and configure:
+3. Copy the example environment file to `.env` and configure it:
    ```bash
-   cp example.env .env
+   cp config/example.env .env
    ```
 
 4. Fill in the .env file with your credentials:
@@ -40,7 +40,7 @@ A TypeScript bot that fetches school menu data and sends it to Telegram. Support
    - API_PASSWORD: School menu API password
    - MENU_IDS: Comma-separated list of menu IDs (e.g., "590,591")
    - TELEGRAM_BOT_TOKEN: Your Telegram bot token
-   - TELEGRAM_CHAT_ID: Your Telegram chat ID
+   - Subscriber chat IDs are stored in `src/services/bot/data/subscribers.json`
 
 ## Usage
 
@@ -56,14 +56,13 @@ npm start -- --date 2025-11-05
 
 ### GitHub Actions
 
-The bot runs automatically every weekday at 5 AM (GMT) via GitHub Actions. To set this up:
+The bot runs automatically every weekday at 7 AM UTC via GitHub Actions. To set this up:
 
 1. Fork this repository
 2. Add these secrets to your repository:
    - API_USERNAME
    - API_PASSWORD
    - TELEGRAM_BOT_TOKEN
-   - TELEGRAM_CHAT_ID
 
 ## Development
 

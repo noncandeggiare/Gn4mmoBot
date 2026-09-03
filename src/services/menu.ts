@@ -5,7 +5,11 @@ import path from 'path';
 import config from '../config';
 import { MenuRequest, MenuResponse } from '../types/menu';
 import { ApiError, AuthenticationError } from '../types/errors';
-import { fileExists } from '../utils';
+
+const HTTPS_AGENT = new https.Agent({
+  keepAlive: true,
+  timeout: 30000,
+});
 
 interface LoginResponse {
   headers: {
@@ -41,11 +45,7 @@ export class MenuService {
           maxRedirects: 0,
           validateStatus: status => status >= 200 && status < 400,
           timeout: 30000, // 30 second timeout
-          httpsAgent: new https.Agent({
-            rejectUnauthorized: false,
-            keepAlive: true,
-            timeout: 30000
-          })
+          httpsAgent: HTTPS_AGENT
         }
       );
 
@@ -59,16 +59,18 @@ export class MenuService {
         throw new AuthenticationError('Authentication cookie not found in response');
       }
 
-      const cookie = authCookie.split(';')[0].split('=')[1];
+      const cookie = authCookie.slice(authCookie.indexOf('=') + 1).split(';')[0];
       
-      // Update .env file with new cookie
       const envPath = path.join(process.cwd(), '.env');
-      const envContent = await fs.readFile(envPath, 'utf-8');
-      const updatedContent = envContent.replace(
-        /API_COOKIE=.*/,
-        `API_COOKIE=${cookie}`
-      );
-      await fs.writeFile(envPath, updatedContent, 'utf-8');
+      try {
+        const envContent = await fs.readFile(envPath, 'utf-8');
+        const updatedContent = envContent.includes('API_COOKIE=')
+          ? envContent.replace(/API_COOKIE=.*/, `API_COOKIE=${cookie}`)
+          : `${envContent.trimEnd()}\nAPI_COOKIE=${cookie}\n`;
+        await fs.writeFile(envPath, updatedContent, 'utf-8');
+      } catch (error) {
+        console.warn('Could not persist refreshed cookie:', error);
+      }
 
       this.cookie = cookie;
       console.log(`Cookie refreshed successfully`);
@@ -118,11 +120,7 @@ export class MenuService {
           'sec-fetch-site': 'same-origin'
         },
         timeout: 30000, // 30 second timeout
-        httpsAgent: new https.Agent({
-          rejectUnauthorized: false,
-          keepAlive: true,
-          timeout: 30000
-        })
+        httpsAgent: HTTPS_AGENT
       });
 
       if (!response.data.succeeded) {

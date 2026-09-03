@@ -2,8 +2,7 @@ import { program } from 'commander';
 import config from '../config';
 import { MenuService } from '../services/menu';
 import { MenuRequest } from '../types/menu';
-import { fileExists, formatDate, ensureError, resolveMenuIdsForDate } from '../utils';
-import fs from 'fs/promises';
+import { formatDate, ensureError, resolveMenuIdsForDate, writeFileAtomic } from '../utils';
 
 interface CliOptions {
   ente: string;
@@ -30,7 +29,10 @@ export async function run(): Promise<void> {
   const date = options.date || formatDate(new Date());
   const outputFile = options.output || config.output.file;
   
-  const requestedMenuIds = (options.menuIds || config.menu.ids.join(',')).split(',').filter(Boolean);
+  const requestedMenuIds = (options.menuIds || config.menu.ids.join(','))
+    .split(',')
+    .map(menuId => menuId.trim())
+    .filter(Boolean);
   const filteredMenuIds = resolveMenuIdsForDate(
     date,
     requestedMenuIds,
@@ -41,11 +43,6 @@ export async function run(): Promise<void> {
   const menuService = new MenuService();
 
   try {
-    // Clear the output file before starting
-    if (await fileExists(outputFile)) {
-      await fs.unlink(outputFile);
-    }
-
     // Execute requests for filtered menus
     const results = await Promise.all(
       filteredMenuIds.map(menuId => {
@@ -94,7 +91,7 @@ export async function run(): Promise<void> {
       const content = `# Menu del ${formattedDate}\n\n${menuContents.join('')}`;
       
       // Write to file
-      await fs.writeFile(outputFile, content, 'utf-8');
+      await writeFileAtomic(outputFile, content);
       console.log(`Menu saved to ${outputFile}`);
     } else {
       // No substantial menus found - school is closed or menu contains only generic items
@@ -108,7 +105,7 @@ export async function run(): Promise<void> {
       const content = `# Menu del ${formattedDate}\n\n## Scuola chiusa\n\nNessun menu disponibile per questa data.`;
       
       // Write to file
-      await fs.writeFile(outputFile, content, 'utf-8');
+      await writeFileAtomic(outputFile, content);
       console.log(`School closed message saved to ${outputFile}`);
     }
   } catch (error) {

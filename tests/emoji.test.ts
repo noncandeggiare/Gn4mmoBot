@@ -1,6 +1,5 @@
 import { EmojiProcessor } from '../src/formatter/emoji';
 import fs from 'fs/promises';
-import path from 'path';
 import * as utils from '../src/utils';
 
 jest.mock('fs/promises');
@@ -28,6 +27,7 @@ describe('EmojiProcessor', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
   });
 
@@ -74,6 +74,7 @@ describe('EmojiProcessor', () => {
 
     it('should use random fruit emoji for "frutta"', async () => {
       jest.clearAllMocks();
+      jest.spyOn(Math, 'random').mockReturnValue(0);
       (fs.readFile as jest.Mock).mockImplementation((path: string) => {
         if (path.includes('emoji_map.json')) {
           return Promise.resolve('{}'); // Empty map to test special logic
@@ -87,7 +88,7 @@ describe('EmojiProcessor', () => {
       const content = writeCall[1];
       
       // Should contain one of the fruit emojis, not the default 🍴
-      const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓'];
+      const fruitEmojis = ['🍇', '🍎', '🍊', '🍌', '🍑', '🍓', '🥝', '🥭', '🍏', '🍉'];
       const hasFruitEmoji = fruitEmojis.some(emoji => content.includes(emoji + ' frutta'));
       expect(hasFruitEmoji).toBe(true);
       expect(content).not.toContain('🍴 frutta');
@@ -95,6 +96,7 @@ describe('EmojiProcessor', () => {
 
     it('should use random vegetable emoji for "verdura"', async () => {
       jest.clearAllMocks();
+      jest.spyOn(Math, 'random').mockReturnValue(0);
       (fs.readFile as jest.Mock).mockImplementation((path: string) => {
         if (path.includes('emoji_map.json')) {
           return Promise.resolve('{}'); // Empty map to test special logic
@@ -108,7 +110,7 @@ describe('EmojiProcessor', () => {
       const content = writeCall[1];
       
       // Should contain one of the vegetable emojis, not the default 🍴
-      const vegetableEmojis = ['🥦', '🥬', '🍅', '🥕', '🌽', '🫑', '🥔'];
+      const vegetableEmojis = ['🥦', '🥬', '🍅', '🥕', '🥒', '🫜', '🍆', '🫛'];
       const hasVegetableEmoji = vegetableEmojis.some(emoji => content.includes(emoji + ' verdura'));
       expect(hasVegetableEmoji).toBe(true);
       expect(content).not.toContain('🍴 verdura');

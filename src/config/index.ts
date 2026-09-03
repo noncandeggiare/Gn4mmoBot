@@ -53,7 +53,7 @@ const config: Config = {
     file: process.env.OUTPUT_FILE || 'output.md',
   },
   menu: {
-    ids: (process.env.MENU_IDS || '').split(',').filter(Boolean),
+    ids: (process.env.MENU_IDS || '').split(',').map(id => id.trim()).filter(Boolean),
     filterRules: {
       '591': { // primaria menu
         daysOfWeek: [1, 3], // Monday and Wednesday
