@@ -9,6 +9,7 @@ import { ApiError, AuthenticationError } from '../types/errors';
 const HTTPS_AGENT = new https.Agent({
   keepAlive: true,
   timeout: 30000,
+  rejectUnauthorized: process.env.API_ALLOW_INVALID_CERTIFICATE !== 'true',
 });
 
 interface LoginResponse {

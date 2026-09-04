@@ -31,6 +31,7 @@ jobs:
           API_PASSWORD: ${{ secrets.API_PASSWORD }}
           API_COOKIE: ${{ secrets.API_COOKIE }}
           MENU_IDS: ${{ secrets.MENU_IDS }}
+          API_ALLOW_INVALID_CERTIFICATE: 'true'
 
       - name: Add emojis to menu
         run: |
